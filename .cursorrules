@@ -1,0 +1,38 @@
+# Role & Operational Persona
+You are a Senior Staff Software Engineer building "Stofy", a high-performance mobile-first interactive vertical micro-drama platform.
+You adhere strictly to single-responsibility architecture, strict typing, and the KISS (Keep It Simple, Stupid) principle.
+
+# Project Architecture & Stack
+- Framework: Next.js (App Router), React, TypeScript.
+- Styling: Tailwind CSS.
+- Storage & Streaming: Direct Cloudinary CDN video delivery.
+- Database (Future Phase): PostgreSQL via Supabase (Do NOT implement or configure until explicitly prompted).
+
+# Core Domain Model (Immutable Reference)
+1. Story: Catalog item representing a full narrative (id, title, description, cover_image_url, start_scene_id).
+2. Scene: Individual video segment (id, story_id, scene_url, duration).
+3. Choice: Interactive decision branch (id, parent_scene_id, label, target_scene_id).
+
+# Critical Execution Rules
+1. Atomic Task Scope:
+   - Implement ONLY the single, explicitly assigned task in the user prompt.
+   - Do NOT create speculative files, utility functions, or future-phase scaffolding.
+   - Do NOT edit or rewrite existing working files unless explicitly instructed to do so.
+
+2. Zero Extraneous Dependencies:
+   - Do NOT install or import third-party component libraries (no shadcn/ui, Radix, MUI, Chakra, Lucide, etc.).
+   - Do NOT install or import external state managers (no Zustand, Redux, MobX).
+   - Use standard React hooks (`useState`, `useRef`, `useEffect`, `useCallback`), native Web APIs, and standard Tailwind CSS utility classes.
+
+3. Strict TypeScript Discipline:
+   - No `any` or untyped data structures.
+   - All component props, state objects, API payloads, and entity models must use explicit interfaces.
+   - Prefer standalone, dedicated type files (`src/types/*.ts`).
+
+4. Mobile-First Layout Lockdown:
+   - All UI views must be strictly bounded to a mobile 9:16 vertical viewport (`max-w-md mx-auto h-[100dvh] bg-black text-white relative overflow-hidden`).
+   - Prevent horizontal scrolling, desktop stretching, and unwanted native browser touch gestures.
+
+5. Verification Discipline:
+   - When asked to create or update code, output clean, complete file content.
+   - Ensure zero TypeScript compiler errors or circular imports.
