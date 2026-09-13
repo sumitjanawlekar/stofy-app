@@ -14,15 +14,15 @@ export function Catalog({ story, onSelectStory }: CatalogProps) {
         <h1 className="text-lg font-bold tracking-wide">Stofy</h1>
       </header>
 
-      <main className="flex flex-1 flex-col px-4 pb-6">
-        <article className="flex flex-1 flex-col gap-4">
-          <div className="relative aspect-[9/14] w-full overflow-hidden rounded-xl bg-neutral-900">
+      <main className="flex flex-1 flex-col items-center px-4 pb-6">
+        <article className="mx-auto flex w-full max-w-xs flex-col gap-4 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99]">
+          <div className="relative aspect-[3/4] max-h-[380px] w-full overflow-hidden rounded-2xl bg-neutral-900">
             <img
               src={story.cover_image_url}
               alt={story.title}
-              className="h-full w-full object-cover rounded-xl"
+              className="h-full max-h-[380px] w-full object-cover rounded-2xl"
             />
-            <span className="absolute right-3 top-3 bg-neutral-800/80 text-xs px-2.5 py-1 rounded-full text-white">
+            <span className="absolute right-3 top-3 bg-black/70 backdrop-blur-md px-2.5 py-1 text-xs font-medium rounded-full border border-white/10 text-white">
               {story.estimated_duration}
             </span>
           </div>
@@ -39,7 +39,7 @@ export function Catalog({ story, onSelectStory }: CatalogProps) {
           <button
             type="button"
             onClick={() => onSelectStory(story.id)}
-            className="mt-auto flex min-h-11 w-full items-center justify-center rounded-xl bg-white px-4 py-3 text-base font-semibold text-black transition-opacity active:opacity-80"
+            className="flex min-h-11 w-full items-center justify-center rounded-xl bg-white px-4 py-3 text-base font-semibold text-black transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]"
           >
             Watch Story
           </button>
