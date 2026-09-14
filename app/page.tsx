@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Catalog } from "@/src/components/Catalog";
+import { Player } from "@/src/components/Player";
 import { MOCK_STORY } from "@/src/data/mockStory";
 
 export default function Home() {
@@ -17,17 +18,11 @@ export default function Home() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col p-4 bg-black text-white relative">
-      <button
-        type="button"
-        onClick={() => setSelectedStoryId(null)}
-        className="self-start min-h-11 text-sm font-medium text-neutral-300"
-      >
-        ← Back to Catalog
-      </button>
-      <p className="flex flex-1 items-center justify-center text-center text-neutral-400">
-        {`Ready for Player Engine: ${selectedStoryId}`}
-      </p>
-    </div>
+    <main className="relative w-full h-[100dvh] flex flex-col bg-black overflow-hidden">
+      <Player
+        initialSceneId={MOCK_STORY.start_scene_id}
+        onBack={() => setSelectedStoryId(null)}
+      />
+    </main>
   );
 }

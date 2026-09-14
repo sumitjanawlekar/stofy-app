@@ -15,7 +15,7 @@ export const MOCK_SCENES: Record<string, Scene> = {
   scene_01: {
     id: "scene_01",
     story_id: "story_01",
-    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1725833446/02_B.mp4",
+    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1788914445/01_compressed_scene.mp4",
     duration: 10,
     choices: [
       {
@@ -35,14 +35,14 @@ export const MOCK_SCENES: Record<string, Scene> = {
   scene_02_a: {
     id: "scene_02_a",
     story_id: "story_01",
-    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1725833446/02_A.mp4",
+    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1788562543/02_A.mp4",
     duration: 10,
     choices: [],
   },
   scene_02_b: {
     id: "scene_02_b",
     story_id: "story_01",
-    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1725833446/02_B.mp4",
+    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1788562543/02_A.mp4",
     duration: 10,
     choices: [],
   },
