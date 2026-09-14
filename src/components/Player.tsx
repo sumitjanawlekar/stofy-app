@@ -83,6 +83,26 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
     }
   }
 
+  function handleTogglePlayPause() {
+    if (showChoices) {
+      return;
+    }
+
+    const video =
+      activeSlot === "A" ? videoRefA.current : videoRefB.current;
+    if (!video) {
+      return;
+    }
+
+    if (video.paused) {
+      void video.play();
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  }
+
   function handleSelectChoice(targetSceneId: string) {
     const nextScene = MOCK_SCENES[targetSceneId];
     if (!nextScene) {
@@ -91,24 +111,23 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
 
     const standbySlot = activeSlot === "A" ? "B" : "A";
 
-    if (videoRefA.current) {
-      videoRefA.current.muted = isMuted;
-    }
-    if (videoRefB.current) {
-      videoRefB.current.muted = isMuted;
-    }
-
     if (standbySlot === "B") {
       if (slotBSrc !== nextScene.scene_url) {
         setSlotBSrc(nextScene.scene_url);
       }
-      void videoRefB.current?.play();
+      if (videoRefB.current) {
+        videoRefB.current.muted = isMuted;
+        void videoRefB.current.play();
+      }
       setActiveSlot("B");
     } else {
       if (slotASrc !== nextScene.scene_url) {
         setSlotASrc(nextScene.scene_url);
       }
-      void videoRefA.current?.play();
+      if (videoRefA.current) {
+        videoRefA.current.muted = isMuted;
+        void videoRefA.current.play();
+      }
       setActiveSlot("A");
     }
 
@@ -128,18 +147,23 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
       : "absolute inset-0 w-full h-full object-cover z-0 opacity-0 pointer-events-none";
 
   return (
-    <div className="w-full h-full relative bg-black overflow-hidden select-none">
+    <div
+      className="w-full h-full relative bg-black overflow-hidden select-none"
+      onClick={handleTogglePlayPause}
+    >
       <video
         ref={videoRefA}
         src={slotASrc || undefined}
         playsInline
         autoPlay
-        muted={isMuted}
+        muted={activeSlot === "A" ? isMuted : true}
         preload="auto"
         className={slotAClassName}
         onLoadedMetadata={(e) => {
-          e.currentTarget.muted = isMuted;
-          void e.currentTarget.play();
+          e.currentTarget.muted = activeSlot === "A" ? isMuted : true;
+          if (activeSlot === "A") {
+            void e.currentTarget.play();
+          }
         }}
         onEnded={() => {
           if (activeSlot === "A") {
@@ -153,8 +177,7 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
           ref={videoRefB}
           src={slotBSrc}
           playsInline
-          autoPlay
-          muted={isMuted}
+          muted={activeSlot === "B" ? isMuted : true}
           preload="auto"
           className={slotBClassName}
           onEnded={() => {
@@ -165,11 +188,29 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
         />
       )}
 
+      {!isPlaying && !showChoices && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <div className="w-16 h-16 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white">
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-8 w-8 translate-x-0.5"
+              aria-hidden="true"
+            >
+              <path d="M8 5v14l11-7L8 5z" />
+            </svg>
+          </div>
+        </div>
+      )}
+
       <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between p-3">
         <button
           type="button"
           aria-label="Back"
-          onClick={onBack}
+          onClick={(e) => {
+            e.stopPropagation();
+            onBack();
+          }}
           className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm text-xl text-white"
         >
           ←
@@ -178,7 +219,10 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
         <button
           type="button"
           aria-label={isMuted ? "Unmute" : "Mute"}
-          onClick={() => setIsMuted(!isMuted)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMuted(!isMuted);
+          }}
           className="min-h-11 min-w-11 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center"
         >
           {isMuted ? (
