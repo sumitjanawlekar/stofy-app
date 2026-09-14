@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Story } from "@/src/types/story";
 
 export interface CatalogProps {
@@ -8,6 +9,8 @@ export interface CatalogProps {
 }
 
 export function Catalog({ story, onSelectStory }: CatalogProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <div className="flex flex-col h-full min-h-[100dvh] w-full max-w-md mx-auto bg-[#0A0A0F] text-white relative overflow-hidden">
       <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-violet-600/15 rounded-full blur-3xl pointer-events-none" />
@@ -56,9 +59,23 @@ export function Catalog({ story, onSelectStory }: CatalogProps) {
                 <h2 className="text-[1.35rem] font-bold text-white tracking-tight leading-snug">
                   {story.title}
                 </h2>
-                <p className="text-xs text-neutral-300/90 leading-relaxed line-clamp-2 mt-1.5">
-                  {story.description}
-                </p>
+                <div className="mt-1.5">
+                  <p
+                    className={`text-xs text-neutral-300 leading-relaxed ${isExpanded ? "" : "line-clamp-2"}`}
+                  >
+                    {story.description}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsExpanded(!isExpanded);
+                    }}
+                    className="text-[11px] font-semibold text-violet-400 hover:text-violet-300 ml-1 inline-block"
+                  >
+                    {isExpanded ? "Show less" : "...Read more"}
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() => onSelectStory(story.id)}

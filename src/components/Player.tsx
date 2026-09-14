@@ -148,7 +148,8 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
 
   return (
     <div
-      className="w-full h-full relative bg-black overflow-hidden select-none"
+      className="w-full h-full relative bg-black overflow-hidden select-none touch-none overscroll-none overscroll-y-none"
+      style={{ overscrollBehaviorY: "none", touchAction: "none" }}
       onClick={handleTogglePlayPause}
     >
       <video

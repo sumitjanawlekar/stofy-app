@@ -3,8 +3,9 @@ import type { Scene } from "@/src/types/scene";
 
 export const MOCK_STORY: Story = {
   id: "story_01",
-  title: "The Choice",
-  description: "An interactive thriller where every decision changes your path.",
+  title: "Dragon Queen",
+  description:
+    "A healer forced to marry the Dragon King ordered to kill her discovers she's the last Dragon Speaker — bound to his fate by a Soul Mark. Trapped between a court of secrets, a scheming adviser, and a brother who wants the crown, she must choose who she becomes: queen, strategist, revolutionary, or empress. Your choices decide her fate.",
   cover_image_url:
     "https://res.cloudinary.com/uvpinyqi/image/upload/v1789362899/Screenshot_2026-09-13_at_10.11.13_PM.jpg",
   start_scene_id: "scene_01",
@@ -15,7 +16,7 @@ export const MOCK_SCENES: Record<string, Scene> = {
   scene_01: {
     id: "scene_01",
     story_id: "story_01",
-    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1788914445/01_compressed_scene.mp4#t=135",
+    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1788914445/01_compressed_scene.mp4",
     duration: 10,
     choices: [
       {
