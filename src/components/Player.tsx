@@ -39,6 +39,31 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
     });
   }, [activeSlot, slotASrc, slotBSrc]);
 
+  useEffect(() => {
+    const standbySlot = activeSlot === "A" ? "B" : "A";
+
+    if (currentScene.choices.length === 0) {
+      return;
+    }
+
+    const primaryNextScene =
+      MOCK_SCENES[currentScene.choices[0].target_scene_id];
+
+    if (!primaryNextScene?.scene_url) {
+      return;
+    }
+
+    if (standbySlot === "B" && slotBSrc !== primaryNextScene.scene_url) {
+      setSlotBSrc(primaryNextScene.scene_url);
+      videoRefB.current?.load();
+    }
+
+    if (standbySlot === "A" && slotASrc !== primaryNextScene.scene_url) {
+      setSlotASrc(primaryNextScene.scene_url);
+      videoRefA.current?.load();
+    }
+  }, [currentScene.id, activeSlot]);
+
   function handleActiveEnded() {
     if (currentScene.choices.length > 0) {
       setShowChoices(true);
@@ -55,11 +80,15 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
     const standbySlot = activeSlot === "A" ? "B" : "A";
 
     if (standbySlot === "B") {
-      setSlotBSrc(nextScene.scene_url);
+      if (slotBSrc !== nextScene.scene_url) {
+        setSlotBSrc(nextScene.scene_url);
+      }
       void videoRefB.current?.play();
       setActiveSlot("B");
     } else {
-      setSlotASrc(nextScene.scene_url);
+      if (slotASrc !== nextScene.scene_url) {
+        setSlotASrc(nextScene.scene_url);
+      }
       void videoRefA.current?.play();
       setActiveSlot("A");
     }
