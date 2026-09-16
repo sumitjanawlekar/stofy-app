@@ -1,140 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { Scene } from "@/src/types/scene";
-import { MOCK_SCENES } from "@/src/data/mockStory";
+import { useDualSlotPlayer } from "@/src/hooks/useDualSlotPlayer";
+import type { Story } from "@/src/types/story";
 import { ChoiceOverlay } from "./ChoiceOverlay";
 
 export interface PlayerProps {
-  initialSceneId: string;
+  story: Story;
   onBack: () => void;
 }
 
-export function Player({ initialSceneId, onBack }: PlayerProps) {
-  const videoRefA = useRef<HTMLVideoElement>(null);
-  const videoRefB = useRef<HTMLVideoElement>(null);
-
-  const [currentScene, setCurrentScene] = useState<Scene>(
-    () => MOCK_SCENES[initialSceneId]!,
-  );
-  const [activeSlot, setActiveSlot] = useState<"A" | "B">("A");
-  const [slotASrc, setSlotASrc] = useState(
-    MOCK_SCENES[initialSceneId]?.scene_url ?? "",
-  );
-  const [slotBSrc, setSlotBSrc] = useState<string | undefined>(undefined);
-  const [showChoices, setShowChoices] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
-
-  useEffect(() => {
-    const activeVideo =
-      activeSlot === "A" ? videoRefA.current : videoRefB.current;
-    const activeSrc = activeSlot === "A" ? slotASrc : slotBSrc;
-
-    if (!activeVideo || !activeSrc) {
-      return;
-    }
-
-    activeVideo.muted = isMuted;
-
-    void activeVideo
-      .play()
-      .then(() => {
-        setIsPlaying(true);
-      })
-      .catch(() => {
-        // Autoplay with sound blocked by browser policy; fallback to muted
-        setIsMuted(true);
-        activeVideo.muted = true;
-        void activeVideo.play();
-        setIsPlaying(true);
-      });
-  }, [activeSlot, slotASrc, slotBSrc, isMuted]);
-
-  useEffect(() => {
-    const standbySlot = activeSlot === "A" ? "B" : "A";
-
-    if (currentScene.choices.length === 0) {
-      return;
-    }
-
-    const primaryNextScene =
-      MOCK_SCENES[currentScene.choices[0].target_scene_id];
-
-    if (!primaryNextScene?.scene_url) {
-      return;
-    }
-
-    if (standbySlot === "B" && slotBSrc !== primaryNextScene.scene_url) {
-      setSlotBSrc(primaryNextScene.scene_url);
-      videoRefB.current?.load();
-    }
-
-    if (standbySlot === "A" && slotASrc !== primaryNextScene.scene_url) {
-      setSlotASrc(primaryNextScene.scene_url);
-      videoRefA.current?.load();
-    }
-  }, [currentScene.id, activeSlot]);
-
-  function handleActiveEnded() {
-    if (currentScene.choices.length > 0) {
-      setShowChoices(true);
-      setIsPlaying(false);
-    }
-  }
-
-  function handleTogglePlayPause() {
-    if (showChoices) {
-      return;
-    }
-
-    const video =
-      activeSlot === "A" ? videoRefA.current : videoRefB.current;
-    if (!video) {
-      return;
-    }
-
-    if (video.paused) {
-      void video.play();
-      setIsPlaying(true);
-    } else {
-      video.pause();
-      setIsPlaying(false);
-    }
-  }
-
-  function handleSelectChoice(targetSceneId: string) {
-    const nextScene = MOCK_SCENES[targetSceneId];
-    if (!nextScene) {
-      return;
-    }
-
-    const standbySlot = activeSlot === "A" ? "B" : "A";
-
-    if (standbySlot === "B") {
-      if (slotBSrc !== nextScene.scene_url) {
-        setSlotBSrc(nextScene.scene_url);
-      }
-      if (videoRefB.current) {
-        videoRefB.current.muted = isMuted;
-        void videoRefB.current.play();
-      }
-      setActiveSlot("B");
-    } else {
-      if (slotASrc !== nextScene.scene_url) {
-        setSlotASrc(nextScene.scene_url);
-      }
-      if (videoRefA.current) {
-        videoRefA.current.muted = isMuted;
-        void videoRefA.current.play();
-      }
-      setActiveSlot("A");
-    }
-
-    setCurrentScene(nextScene);
-    setShowChoices(false);
-    setIsPlaying(true);
-  }
+export function Player({ story, onBack }: PlayerProps) {
+  const {
+    currentScene,
+    activeSlot,
+    slotASrc,
+    slotBSrc,
+    showChoices,
+    isPlaying,
+    isMuted,
+    videoRefA,
+    videoRefB,
+    togglePlayPause,
+    toggleMute,
+    handleActiveEnded,
+    selectChoice,
+  } = useDualSlotPlayer({ initialSceneId: story.start_scene_id });
 
   const slotAClassName =
     activeSlot === "A"
@@ -150,7 +40,7 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
     <div
       className="w-full h-full relative bg-black overflow-hidden select-none touch-none overscroll-none overscroll-y-none"
       style={{ overscrollBehaviorY: "none", touchAction: "none" }}
-      onClick={handleTogglePlayPause}
+      onClick={togglePlayPause}
     >
       <video
         ref={videoRefA}
@@ -191,7 +81,7 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
 
       {!isPlaying && !showChoices && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <div className="w-16 h-16 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white">
+          <div className="w-16 h-16 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 flex items-center justify-center text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)]">
             <svg
               viewBox="0 0 24 24"
               fill="currentColor"
@@ -212,7 +102,7 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
             e.stopPropagation();
             onBack();
           }}
-          className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm text-xl text-white"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-xl text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)]"
         >
           ←
         </button>
@@ -222,9 +112,9 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
           aria-label={isMuted ? "Unmute" : "Mute"}
           onClick={(e) => {
             e.stopPropagation();
-            setIsMuted(!isMuted);
+            toggleMute();
           }}
-          className="min-h-11 min-w-11 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center"
+          className="min-h-11 min-w-11 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-white flex items-center justify-center shadow-[0_4px_24px_rgba(139,92,246,0.2)]"
         >
           {isMuted ? (
             <svg
@@ -251,7 +141,7 @@ export function Player({ initialSceneId, onBack }: PlayerProps) {
       {showChoices && (
         <ChoiceOverlay
           choices={currentScene.choices}
-          onSelectChoice={handleSelectChoice}
+          onSelectChoice={selectChoice}
         />
       )}
     </div>
