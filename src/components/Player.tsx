@@ -10,29 +10,15 @@ export interface PlayerProps {
 }
 
 export function Player({ story, onBack }: PlayerProps) {
-  const {
-    currentScene,
-    activeSlot,
-    slotASrc,
-    slotBSrc,
-    showChoices,
-    isPlaying,
-    isMuted,
-    videoRefA,
-    videoRefB,
-    togglePlayPause,
-    toggleMute,
-    handleActiveEnded,
-    selectChoice,
-  } = useDualSlotPlayer({ initialSceneId: story.start_scene_id });
+  const player = useDualSlotPlayer({ initialSceneId: story.start_scene_id });
 
   const slotAClassName =
-    activeSlot === "A"
+    player.activeSlot === "A"
       ? "absolute inset-0 w-full h-full object-cover z-10 opacity-100"
       : "absolute inset-0 w-full h-full object-cover z-0 opacity-0 pointer-events-none";
 
   const slotBClassName =
-    activeSlot === "B"
+    player.activeSlot === "B"
       ? "absolute inset-0 w-full h-full object-cover z-10 opacity-100"
       : "absolute inset-0 w-full h-full object-cover z-0 opacity-0 pointer-events-none";
 
@@ -40,46 +26,47 @@ export function Player({ story, onBack }: PlayerProps) {
     <div
       className="w-full h-full relative bg-black overflow-hidden select-none touch-none overscroll-none overscroll-y-none"
       style={{ overscrollBehaviorY: "none", touchAction: "none" }}
-      onClick={togglePlayPause}
+      onClick={player.togglePlayPause}
     >
       <video
-        ref={videoRefA}
-        src={slotASrc || undefined}
+        ref={player.videoRefA}
+        src={player.slotASrc || undefined}
         playsInline
         autoPlay
-        muted={activeSlot === "A" ? isMuted : true}
+        muted={player.activeSlot === "A" ? player.isMuted : true}
         preload="auto"
         className={slotAClassName}
         onLoadedMetadata={(e) => {
-          e.currentTarget.muted = activeSlot === "A" ? isMuted : true;
-          if (activeSlot === "A") {
+          e.currentTarget.muted =
+            player.activeSlot === "A" ? player.isMuted : true;
+          if (player.activeSlot === "A") {
             void e.currentTarget.play();
           }
         }}
         onEnded={() => {
-          if (activeSlot === "A") {
-            handleActiveEnded();
+          if (player.activeSlot === "A") {
+            player.handleActiveEnded();
           }
         }}
       />
 
-      {slotBSrc && (
+      {player.slotBSrc && (
         <video
-          ref={videoRefB}
-          src={slotBSrc}
+          ref={player.videoRefB}
+          src={player.slotBSrc}
           playsInline
-          muted={activeSlot === "B" ? isMuted : true}
+          muted={player.activeSlot === "B" ? player.isMuted : true}
           preload="auto"
           className={slotBClassName}
           onEnded={() => {
-            if (activeSlot === "B") {
-              handleActiveEnded();
+            if (player.activeSlot === "B") {
+              player.handleActiveEnded();
             }
           }}
         />
       )}
 
-      {!isPlaying && !showChoices && (
+      {!player.isPlaying && !player.showChoices && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
           <div className="w-16 h-16 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 flex items-center justify-center text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)]">
             <svg
@@ -109,14 +96,14 @@ export function Player({ story, onBack }: PlayerProps) {
 
         <button
           type="button"
-          aria-label={isMuted ? "Unmute" : "Mute"}
+          aria-label={player.isMuted ? "Unmute" : "Mute"}
           onClick={(e) => {
             e.stopPropagation();
-            toggleMute();
+            player.toggleMute();
           }}
           className="min-h-11 min-w-11 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-white flex items-center justify-center shadow-[0_4px_24px_rgba(139,92,246,0.2)]"
         >
-          {isMuted ? (
+          {player.isMuted ? (
             <svg
               viewBox="0 0 24 24"
               fill="currentColor"
@@ -138,10 +125,10 @@ export function Player({ story, onBack }: PlayerProps) {
         </button>
       </header>
 
-      {showChoices && (
+      {player.showChoices && (
         <ChoiceOverlay
-          choices={currentScene.choices}
-          onSelectChoice={selectChoice}
+          choices={player.currentScene.choices}
+          onSelectChoice={player.selectChoice}
         />
       )}
     </div>
