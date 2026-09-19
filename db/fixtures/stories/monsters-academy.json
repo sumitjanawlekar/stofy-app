@@ -1,0 +1,16 @@
+{
+  "slug": "monsters-academy",
+  "title": "Monsters Academy",
+  "description": "Surviving academy life when your classmates are actual beasts.",
+  "cover_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789810781/monsters-academy-cover.png",
+  "status": "in_progress",
+  "start_scene_key": "00",
+  "scenes": [
+    {
+      "key": "00",
+      "scene_url": "https://res.cloudinary.com/uvpinyqi/video/upload/v1789690519/monsters-academy_00.mp4",
+      "duration": 153.0,
+      "choices": []
+    }
+  ]
+}

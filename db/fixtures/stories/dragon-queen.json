@@ -1,0 +1,79 @@
+{
+  "slug": "dragon-queen",
+  "title": "The Dragon Queen",
+  "description": "An interactive fantasy adventure where every choice determines your fate.",
+  "cover_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789811106/dragon-queen_cover.jpg",
+  "status": "in_progress",
+  "start_scene_key": "00",
+  "scenes": [
+    {
+      "key": "00",
+      "scene_url": "https://res.cloudinary.com/uvpinyqi/video/upload/v1789690128/dragon-queen_00.mp4",
+      "duration": 131.0,
+      "choices": [
+        {
+          "label": "Confront the Flame",
+          "button_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789692066/dragon-queen_00_opt1.png",
+          "target_scene_key": "01_a",
+          "sort_order": 0
+        },
+        {
+          "label": "Seek the Scholar",
+          "button_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789692066/dragon-queen_00_opt2.png",
+          "target_scene_key": "01_b",
+          "sort_order": 1
+        }
+      ]
+    },
+    {
+      "key": "01_a",
+      "scene_url": "https://res.cloudinary.com/uvpinyqi/video/upload/v1789690169/dragon-queen_01_a.mp4",
+      "duration": 37.0,
+      "choices": [
+        {
+          "label": "Draw the Blade",
+          "button_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789692066/dragon-queen_01_a_opt1.png",
+          "target_scene_key": "02_a",
+          "sort_order": 0
+        },
+        {
+          "label": "Cast the Ward",
+          "button_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789692067/dragon-queen_01_a_opt2.png",
+          "target_scene_key": "02_b",
+          "sort_order": 1
+        }
+      ]
+    },
+    {
+      "key": "01_b",
+      "scene_url": "https://res.cloudinary.com/uvpinyqi/video/upload/v1789690169/dragon-queen_01_b.mp4",
+      "duration": 56.0,
+      "choices": [
+        {
+          "label": "Unseal the Tome",
+          "button_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789692067/dragon-queen_01_b_opt1.png",
+          "target_scene_key": "02_a",
+          "sort_order": 0
+        },
+        {
+          "label": "Flee the Catacombs",
+          "button_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789692068/dragon-queen_01_b_opt2.png",
+          "target_scene_key": "02_b",
+          "sort_order": 1
+        }
+      ]
+    },
+    {
+      "key": "02_a",
+      "scene_url": "https://res.cloudinary.com/uvpinyqi/video/upload/v1789690169/dragon-queen_02_a.mp4",
+      "duration": 44.0,
+      "choices": []
+    },
+    {
+      "key": "02_b",
+      "scene_url": "https://res.cloudinary.com/uvpinyqi/video/upload/v1789690232/dragon-queen_02_b.mp4",
+      "duration": 37.0,
+      "choices": []
+    }
+  ]
+}

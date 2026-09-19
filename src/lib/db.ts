@@ -4,37 +4,39 @@ import {
   type QueryResultRow,
 } from "@neondatabase/serverless";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "Missing DATABASE_URL environment variable. Set it in .env.local to connect to Neon.",
-  );
+let poolInstance: Pool | null = null;
+
+export function getPool(): Pool {
+  if (!poolInstance) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error(
+        "Missing DATABASE_URL environment variable. Set it in .env.local to connect to Neon.",
+      );
+    }
+    poolInstance = new Pool({ connectionString });
+  }
+  return poolInstance;
 }
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __neonPool: Pool | undefined;
-}
-
-const pool =
-  globalThis.__neonPool ??
-  new Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 10,
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  globalThis.__neonPool = pool;
-}
-
-export { pool };
+export const pool = new Proxy({} as Pool, {
+  get(_target, prop) {
+    const p = getPool();
+    const value = Reflect.get(p, prop, p) as unknown;
+    return typeof value === "function"
+      ? (value as (...args: unknown[]) => unknown).bind(p)
+      : value;
+  },
+});
 
 export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: unknown[],
 ): Promise<QueryResult<T>> {
+  const p = getPool();
   const start = Date.now();
   try {
-    const res = await pool.query<T>(text, params);
+    const res = await p.query<T>(text, params);
     const duration = Date.now() - start;
     if (process.env.NODE_ENV === "development") {
       console.log("[db:query]", {

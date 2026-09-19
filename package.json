@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:create-migration": "tsx scripts/create-migration.ts"
+    "db:create-migration": "tsx scripts/create-migration.ts",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx db/seed.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

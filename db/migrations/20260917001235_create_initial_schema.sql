@@ -6,6 +6,7 @@ CREATE TABLE stories (
   title VARCHAR(255) NOT NULL,
   description TEXT,
   cover_image_url TEXT NOT NULL,
+  status VARCHAR(32) NOT NULL DEFAULT 'in_progress',
   start_scene_id UUID,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

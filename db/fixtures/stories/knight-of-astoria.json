@@ -1,0 +1,16 @@
+{
+  "slug": "knight-of-astoria",
+  "title": "Knight of Astoria",
+  "description": "Honor, steel, and treacherous courts in the kingdom of Astoria.",
+  "cover_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789810755/knight-of-astoria-cover.png",
+  "status": "in_progress",
+  "start_scene_key": "00",
+  "scenes": [
+    {
+      "key": "00",
+      "scene_url": "https://res.cloudinary.com/uvpinyqi/video/upload/v1789690338/knight-of-astoria_00.mp4",
+      "duration": 179.0,
+      "choices": []
+    }
+  ]
+}
