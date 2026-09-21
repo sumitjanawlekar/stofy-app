@@ -1,15 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { STORIES, STORY_MAP } from "@/src/data/mockStory";
 import type { Story } from "@/src/types/story";
 
 export interface CatalogProps {
-  story: Story;
-  onSelectStory: (storyId: string) => void;
+  story?: Story;
+  onSelectStory?: (slug: string) => void;
 }
 
-export function Catalog({ story, onSelectStory }: CatalogProps) {
+export function Catalog({ onSelectStory }: CatalogProps) {
+  const featuredStory = STORIES[0];
   const [isExpanded, setIsExpanded] = useState(false);
+
+  function selectStory(slug: string) {
+    if (!STORY_MAP[slug]) return;
+    onSelectStory?.(slug);
+  }
 
   return (
     <div className="flex flex-col h-full min-h-[100dvh] w-full max-w-md mx-auto bg-[#0A0A0F] text-white relative overflow-hidden">
@@ -38,112 +45,116 @@ export function Catalog({ story, onSelectStory }: CatalogProps) {
       </header>
 
       <main className="flex-1 overflow-y-auto px-5 py-4 space-y-5 pb-20 relative z-10">
-        <section className="space-y-3">
-          <p className="text-xs font-semibold tracking-wider text-violet-400 uppercase">
-            Featured Release
+        {featuredStory && (
+          <section className="space-y-3">
+            <p className="text-xs font-semibold tracking-wider text-violet-400 uppercase">
+              Featured Release
+            </p>
+
+            <article className="relative rounded-2xl overflow-hidden border border-white/10 bg-neutral-900/70 backdrop-blur-md shadow-[0_12px_32px_-8px_rgba(0,0,0,0.8)] transition-all hover:border-violet-500/30">
+              <div className="relative w-full overflow-hidden">
+                <img
+                  src={featuredStory.cover_image_url}
+                  alt={featuredStory.title}
+                  className="aspect-[4/5] w-full object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+                <span className="absolute top-3.5 right-3.5 bg-black/75 backdrop-blur-md text-neutral-200 text-xs font-medium px-2.5 py-1 rounded-full border border-white/10">
+                  {featuredStory.estimated_duration}
+                </span>
+
+                <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-16">
+                  <h2 className="text-[1.35rem] font-bold text-white tracking-tight leading-snug">
+                    {featuredStory.title}
+                  </h2>
+                  <div className="mt-1.5">
+                    <p
+                      className={`text-xs text-neutral-300 leading-relaxed ${isExpanded ? "" : "line-clamp-2"}`}
+                    >
+                      {featuredStory.description}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(!isExpanded);
+                      }}
+                      className="text-[11px] font-semibold text-violet-400 hover:text-violet-300 ml-1 inline-block"
+                    >
+                      {isExpanded ? "Show less" : "...Read more"}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => selectStory(featuredStory.slug)}
+                    className="w-full min-h-12 mt-4 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-violet-600/25 transition-all"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 5v14l11-7L8 5z" />
+                    </svg>
+                    Watch Story
+                  </button>
+                </div>
+              </div>
+            </article>
+          </section>
+        )}
+
+        <section className="space-y-3 px-0">
+          <p className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
+            More Stories
           </p>
 
-          <article className="relative rounded-2xl overflow-hidden border border-white/10 bg-neutral-900/70 backdrop-blur-md shadow-[0_12px_32px_-8px_rgba(0,0,0,0.8)] transition-all hover:border-violet-500/30">
-            <div className="relative w-full overflow-hidden">
-              <img
-                src={story.cover_image_url}
-                alt={story.title}
-                className="aspect-[4/5] w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-              <span className="absolute top-3.5 right-3.5 bg-black/75 backdrop-blur-md text-neutral-200 text-xs font-medium px-2.5 py-1 rounded-full border border-white/10">
-                {story.estimated_duration}
-              </span>
-
-              <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-16">
-                <h2 className="text-[1.35rem] font-bold text-white tracking-tight leading-snug">
-                  {story.title}
-                </h2>
-                <div className="mt-1.5">
-                  <p
-                    className={`text-xs text-neutral-300 leading-relaxed ${isExpanded ? "" : "line-clamp-2"}`}
-                  >
+          {STORIES.slice(1).map((story) => (
+            <div
+              key={story.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => selectStory(story.slug)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  selectStory(story.slug);
+                }
+              }}
+              className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/70 backdrop-blur-md cursor-pointer transition-all hover:border-violet-500/30"
+            >
+              <div className="relative aspect-[16/10] w-full overflow-hidden">
+                <img
+                  src={story.cover_image_url}
+                  alt={story.title}
+                  className="h-full w-full object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+                <span className="absolute top-3 right-3 bg-black/75 backdrop-blur-md text-neutral-200 text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10">
+                  {story.estimated_duration}
+                </span>
+                <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-8">
+                  <h3 className="text-base font-bold text-white tracking-tight">
+                    {story.title}
+                  </h3>
+                  <p className="text-xs text-neutral-300 leading-relaxed line-clamp-2 mt-0.5">
                     {story.description}
                   </p>
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsExpanded(!isExpanded);
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      selectStory(story.slug);
                     }}
-                    className="text-[11px] font-semibold text-violet-400 hover:text-violet-300 ml-1 inline-block"
+                    className="mt-3 min-h-10 px-4 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white font-semibold text-xs rounded-xl"
                   >
-                    {isExpanded ? "Show less" : "...Read more"}
+                    Watch Story
                   </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onSelectStory(story.id)}
-                  className="w-full min-h-12 mt-4 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-violet-600/25 transition-all"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="h-4 w-4"
-                    aria-hidden="true"
-                  >
-                    <path d="M8 5v14l11-7L8 5z" />
-                  </svg>
-                  Watch Story
-                </button>
               </div>
             </div>
-          </article>
-        </section>
-
-        <section className="space-y-3 px-0">
-          <p className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-            Upcoming Stories
-          </p>
-
-          <article className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/70 backdrop-blur-md opacity-55 pointer-events-none">
-            <div className="relative aspect-[16/10] w-full overflow-hidden">
-              <img
-                src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&auto=format&fit=crop&q=80"
-                alt="The Cipher"
-                className="h-full w-full object-cover grayscale"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-              <span className="absolute top-3 right-3 bg-black/75 backdrop-blur-md text-neutral-200 text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10">
-                🔒 Coming Soon
-              </span>
-              <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-8">
-                <h3 className="text-base font-bold text-white tracking-tight">
-                  The Cipher
-                </h3>
-                <p className="text-xs text-neutral-400 leading-relaxed line-clamp-1 mt-0.5">
-                  Decode the message before time runs out.
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <article className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/70 backdrop-blur-md opacity-55 pointer-events-none">
-            <div className="relative aspect-[16/10] w-full overflow-hidden">
-              <img
-                src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop&q=80"
-                alt="Shadow Protocol"
-                className="h-full w-full object-cover grayscale"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-              <span className="absolute top-3 right-3 bg-black/75 backdrop-blur-md text-neutral-200 text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10">
-                🔒 Coming Soon
-              </span>
-              <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-8">
-                <h3 className="text-base font-bold text-white tracking-tight">
-                  Shadow Protocol
-                </h3>
-                <p className="text-xs text-neutral-400 leading-relaxed line-clamp-1 mt-0.5">
-                  One wrong move and the mission collapses.
-                </p>
-              </div>
-            </div>
-          </article>
+          ))}
         </section>
       </main>
 

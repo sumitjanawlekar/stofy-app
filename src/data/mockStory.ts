@@ -1,50 +1,108 @@
-import type { Story } from "@/src/types/story";
+import dragonQueenFixture from "@/db/fixtures/stories/dragon-queen.json";
+import knightOfAstoriaFixture from "@/db/fixtures/stories/knight-of-astoria.json";
+import ladyBossFixture from "@/db/fixtures/stories/lady-boss.json";
+import monstersAcademyFixture from "@/db/fixtures/stories/monsters-academy.json";
+import { formatMinutes } from "@/src/lib/utils/formatters";
+import type { Choice } from "@/src/types/choice";
 import type { Scene } from "@/src/types/scene";
+import { STORY_STATUS, type Story, type StoryStatus } from "@/src/types/story";
 
-export const MOCK_STORY: Story = {
-  id: "story_01",
-  title: "Dragon Queen",
-  description:
-    "A healer forced to marry the Dragon King ordered to kill her discovers she's the last Dragon Speaker — bound to his fate by a Soul Mark. Trapped between a court of secrets, a scheming adviser, and a brother who wants the crown, she must choose who she becomes: queen, strategist, revolutionary, or empress. Your choices decide her fate.",
-  cover_image_url:
-    "https://res.cloudinary.com/uvpinyqi/image/upload/v1789362899/Screenshot_2026-09-13_at_10.11.13_PM.jpg",
-  start_scene_id: "scene_01",
-  estimated_duration: "~2 mins",
+interface FixtureChoice {
+  label: string;
+  button_image_url?: string | null;
+  target_scene_key: string;
+  sort_order?: number;
+}
+
+interface FixtureScene {
+  key: string;
+  scene_url: string;
+  duration: number;
+  choices: FixtureChoice[];
+}
+
+interface FixtureStory {
+  slug: string;
+  title: string;
+  description: string;
+  cover_image_url: string;
+  status: string;
+  start_scene_key: string;
+  scenes: FixtureScene[];
+}
+
+interface StoryBundle {
+  story: Story;
+  scenes: Record<string, Scene>;
+}
+
+function sceneId(slug: string, key: string): string {
+  return `${slug}_${key}`;
+}
+
+function choiceId(slug: string, parentKey: string, index: number): string {
+  return `${slug}_${parentKey}_choice_${index}`;
+}
+
+function toStoryStatus(value: string): StoryStatus {
+  const allowed = Object.values(STORY_STATUS) as string[];
+  if (!allowed.includes(value)) {
+    throw new Error(`Invalid story status in fixture: ${value}`);
+  }
+  return value as StoryStatus;
+}
+
+export function parseFixtureToBundle(fixture: FixtureStory): StoryBundle {
+  const storyId = fixture.slug;
+  const scenes: Record<string, Scene> = {};
+
+  for (const fixtureScene of fixture.scenes) {
+    const id = sceneId(fixture.slug, fixtureScene.key);
+    const choices: Choice[] = fixtureScene.choices.map((choice, index) => ({
+      id: choiceId(fixture.slug, fixtureScene.key, index),
+      parent_scene_id: id,
+      label: choice.label,
+      target_scene_id: sceneId(fixture.slug, choice.target_scene_key),
+    }));
+
+    scenes[id] = {
+      id,
+      story_id: storyId,
+      scene_url: fixtureScene.scene_url,
+      duration: fixtureScene.duration,
+      choices,
+    };
+  }
+
+  const totalSeconds = fixture.scenes.reduce(
+    (sum, scene) => sum + scene.duration,
+    0,
+  );
+
+  const story: Story = {
+    id: storyId,
+    slug: fixture.slug,
+    title: fixture.title,
+    description: fixture.description,
+    cover_image_url: fixture.cover_image_url,
+    status: toStoryStatus(fixture.status),
+    start_scene_id: sceneId(fixture.slug, fixture.start_scene_key),
+    estimated_duration: formatMinutes(totalSeconds),
+  };
+
+  return { story, scenes };
+}
+
+export const STORY_MAP: Record<string, StoryBundle> = {
+  "dragon-queen": parseFixtureToBundle(dragonQueenFixture),
+  "knight-of-astoria": parseFixtureToBundle(knightOfAstoriaFixture),
+  "lady-boss": parseFixtureToBundle(ladyBossFixture),
+  "monsters-academy": parseFixtureToBundle(monstersAcademyFixture),
 };
 
-export const MOCK_SCENES: Record<string, Scene> = {
-  scene_01: {
-    id: "scene_01",
-    story_id: "story_01",
-    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1788914445/01_compressed_scene.mp4",
-    duration: 10,
-    choices: [
-      {
-        id: "choice_01_a",
-        parent_scene_id: "scene_01",
-        label: "Take the Left Path",
-        target_scene_id: "scene_02_a",
-      },
-      {
-        id: "choice_01_b",
-        parent_scene_id: "scene_01",
-        label: "Take the Right Path",
-        target_scene_id: "scene_02_b",
-      },
-    ],
-  },
-  scene_02_a: {
-    id: "scene_02_a",
-    story_id: "story_01",
-    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1788562544/02_B.mp4",
-    duration: 10,
-    choices: [],
-  },
-  scene_02_b: {
-    id: "scene_02_b",
-    story_id: "story_01",
-    scene_url: "https://res.cloudinary.com/uvpinyqi/video/upload/v1788562543/02_A.mp4",
-    duration: 10,
-    choices: [],
-  },
-};
+export const STORIES: Story[] = Object.values(STORY_MAP).map(
+  (bundle) => bundle.story,
+);
+
+export const MOCK_STORY = STORY_MAP["dragon-queen"].story;
+export const MOCK_SCENES = STORY_MAP["dragon-queen"].scenes;
