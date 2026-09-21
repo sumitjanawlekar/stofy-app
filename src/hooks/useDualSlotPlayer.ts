@@ -8,6 +8,9 @@ import {
 import type { Scene } from "@/src/types/scene";
 import { MOCK_SCENES } from "@/src/data/mockStory";
 
+export const MAX_SEEK_BUFFER = 5; // User cannot seek past duration - 5s
+export const CHOICE_TRIGGER_BUFFER = 3; // Choices trigger at duration - 3s
+
 export interface UseDualSlotPlayerParams {
   initialSceneId: string;
   scenes?: Record<string, Scene>;
@@ -21,6 +24,11 @@ export interface UseDualSlotPlayerReturn {
   showChoices: boolean;
   isPlaying: boolean;
   isMuted: boolean;
+  currentTime: number;
+  duration: number;
+  isScrubbing: boolean;
+  setIsScrubbing: (scrubbing: boolean) => void;
+  seek: (targetTime: number) => void;
   videoRefA: RefObject<HTMLVideoElement | null>;
   videoRefB: RefObject<HTMLVideoElement | null>;
   togglePlayPause: () => void;
@@ -47,6 +55,57 @@ export function useDualSlotPlayer({
   const [showChoices, setShowChoices] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(
+    () => scenes[initialSceneId]?.duration ?? 0,
+  );
+  const [isScrubbing, setIsScrubbingState] = useState(false);
+
+  useEffect(() => {
+    setCurrentTime(0);
+    setDuration(currentScene.duration);
+  }, [currentScene.id, activeSlot, currentScene.duration]);
+
+  useEffect(() => {
+    const activeVideo =
+      activeSlot === "A" ? videoRefA.current : videoRefB.current;
+    if (!activeVideo) {
+      return;
+    }
+
+    const onTimeUpdate = () => {
+      if (!isScrubbing) {
+        setCurrentTime(activeVideo.currentTime);
+      }
+
+      const triggerTime = Math.max(
+        0,
+        currentScene.duration - CHOICE_TRIGGER_BUFFER,
+      );
+
+      if (
+        !isScrubbing &&
+        currentScene.choices.length > 0 &&
+        !showChoices &&
+        activeVideo.currentTime >= triggerTime
+      ) {
+        setShowChoices(true);
+      }
+    };
+
+    activeVideo.addEventListener("timeupdate", onTimeUpdate);
+    return () => {
+      activeVideo.removeEventListener("timeupdate", onTimeUpdate);
+    };
+  }, [
+    activeSlot,
+    slotASrc,
+    slotBSrc,
+    isScrubbing,
+    showChoices,
+    currentScene.duration,
+    currentScene.choices.length,
+  ]);
 
   useEffect(() => {
     const activeVideo =
@@ -128,6 +187,48 @@ export function useDualSlotPlayer({
     setIsMuted((prev) => !prev);
   }, []);
 
+  const seek = useCallback(
+    (targetTime: number) => {
+      const maxSeek = Math.max(0, duration - MAX_SEEK_BUFFER);
+      const clampedTime = Math.min(Math.max(0, targetTime), maxSeek);
+      const activeVideo =
+        activeSlot === "A" ? videoRefA.current : videoRefB.current;
+
+      if (activeVideo) {
+        activeVideo.currentTime = clampedTime;
+      }
+
+      setCurrentTime(clampedTime);
+    },
+    [activeSlot, duration],
+  );
+
+  const setIsScrubbing = useCallback(
+    (scrubbing: boolean) => {
+      const activeVideo =
+        activeSlot === "A" ? videoRefA.current : videoRefB.current;
+
+      setIsScrubbingState(scrubbing);
+
+      if (scrubbing) {
+        activeVideo?.pause();
+        setIsPlaying(false);
+        return;
+      }
+
+      // Resume playback only. Do not force the choice overlay here —
+      // even if release is near the choice trigger window
+      // (currentTime >= duration - CHOICE_TRIGGER_BUFFER). Let the
+      // video play out and timeupdate open choices when it crosses
+      // the threshold naturally.
+      if (!showChoices && activeVideo) {
+        void activeVideo.play();
+        setIsPlaying(true);
+      }
+    },
+    [activeSlot, showChoices],
+  );
+
   const selectChoice = useCallback(
     (targetSceneId: string) => {
       const nextScene = scenes[targetSceneId];
@@ -172,6 +273,11 @@ export function useDualSlotPlayer({
     showChoices,
     isPlaying,
     isMuted,
+    currentTime,
+    duration,
+    isScrubbing,
+    setIsScrubbing,
+    seek,
     videoRefA,
     videoRefB,
     togglePlayPause,
