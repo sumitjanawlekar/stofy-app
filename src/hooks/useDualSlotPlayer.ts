@@ -9,7 +9,7 @@ import type { Scene } from "@/src/types/scene";
 import { MOCK_SCENES } from "@/src/data/mockStory";
 
 export const MAX_SEEK_BUFFER = 5; // User cannot seek past duration - 5s
-export const CHOICE_TRIGGER_BUFFER = 3; // Choices trigger at duration - 3s
+export const CHOICE_TRIGGER_BUFFER = 4; // Choices trigger at duration - 4s
 
 export interface UseDualSlotPlayerParams {
   initialSceneId: string;
@@ -157,11 +157,9 @@ export function useDualSlotPlayer({
   }, [currentScene.id, activeSlot, currentScene.choices, scenes, slotASrc, slotBSrc]);
 
   const handleActiveEnded = useCallback(() => {
-    if (currentScene.choices.length > 0) {
-      setShowChoices(true);
-      setIsPlaying(false);
-    }
-  }, [currentScene.choices.length]);
+    setShowChoices(true);
+    setIsPlaying(false);
+  }, []);
 
   const togglePlayPause = useCallback(() => {
     if (showChoices) {

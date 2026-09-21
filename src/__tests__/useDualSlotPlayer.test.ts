@@ -113,7 +113,7 @@ describe("useDualSlotPlayer", () => {
     expect(result.current.isPlaying).toBe(false);
   });
 
-  it("does not show choices when the active scene has no branches", () => {
+  it("shows the terminal overlay when the active scene has no branches", () => {
     const { result } = renderHook(() =>
       useDualSlotPlayer({
         initialSceneId: "scene_02_a",
@@ -125,7 +125,9 @@ describe("useDualSlotPlayer", () => {
       result.current.handleActiveEnded();
     });
 
-    expect(result.current.showChoices).toBe(false);
+    expect(result.current.showChoices).toBe(true);
+    expect(result.current.isPlaying).toBe(false);
+    expect(result.current.currentScene.choices).toHaveLength(0);
   });
 
   it("selectChoice swaps to standby slot B and advances the scene", () => {

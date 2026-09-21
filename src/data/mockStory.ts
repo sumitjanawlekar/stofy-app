@@ -63,6 +63,7 @@ export function parseFixtureToBundle(fixture: FixtureStory): StoryBundle {
       parent_scene_id: id,
       label: choice.label,
       target_scene_id: sceneId(fixture.slug, choice.target_scene_key),
+      button_image_url: choice.button_image_url ?? undefined,
     }));
 
     scenes[id] = {
@@ -72,6 +73,7 @@ export function parseFixtureToBundle(fixture: FixtureStory): StoryBundle {
       duration: fixtureScene.duration,
       choices,
     };
+
   }
 
   const totalSeconds = fixture.scenes.reduce(

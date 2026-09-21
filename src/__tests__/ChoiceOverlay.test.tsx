@@ -60,4 +60,26 @@ describe("ChoiceOverlay", () => {
 
     expect(onSelectChoice).toHaveBeenCalledWith("scene_02_b");
   });
+
+  it("renders terminal CTA and calls onBackToCatalog when choices are empty", () => {
+    const onBackToCatalog = vi.fn();
+
+    render(
+      <ChoiceOverlay
+        choices={[]}
+        onSelectChoice={vi.fn()}
+        onBackToCatalog={onBackToCatalog}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /To Be Continued/i }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Explore Other Stories/i }),
+    );
+
+    expect(onBackToCatalog).toHaveBeenCalledTimes(1);
+  });
 });
