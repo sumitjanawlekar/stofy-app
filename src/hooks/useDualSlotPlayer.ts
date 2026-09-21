@@ -8,7 +8,8 @@ import {
 import type { Scene } from "@/src/types/scene";
 import { MOCK_SCENES } from "@/src/data/mockStory";
 
-export const DECISION_WINDOW_BUFFER = 5;
+export const MAX_SEEK_BUFFER = 5; // User cannot seek past duration - 5s
+export const CHOICE_TRIGGER_BUFFER = 3; // Choices trigger at duration - 3s
 
 export interface UseDualSlotPlayerParams {
   initialSceneId: string;
@@ -79,10 +80,11 @@ export function useDualSlotPlayer({
 
       const triggerTime = Math.max(
         0,
-        currentScene.duration - DECISION_WINDOW_BUFFER,
+        currentScene.duration - CHOICE_TRIGGER_BUFFER,
       );
 
       if (
+        !isScrubbing &&
         currentScene.choices.length > 0 &&
         !showChoices &&
         activeVideo.currentTime >= triggerTime
@@ -187,7 +189,7 @@ export function useDualSlotPlayer({
 
   const seek = useCallback(
     (targetTime: number) => {
-      const maxSeek = Math.max(0, duration - DECISION_WINDOW_BUFFER);
+      const maxSeek = Math.max(0, duration - MAX_SEEK_BUFFER);
       const clampedTime = Math.min(Math.max(0, targetTime), maxSeek);
       const activeVideo =
         activeSlot === "A" ? videoRefA.current : videoRefB.current;
@@ -214,6 +216,11 @@ export function useDualSlotPlayer({
         return;
       }
 
+      // Resume playback only. Do not force the choice overlay here —
+      // even if release is near the choice trigger window
+      // (currentTime >= duration - CHOICE_TRIGGER_BUFFER). Let the
+      // video play out and timeupdate open choices when it crosses
+      // the threshold naturally.
       if (!showChoices && activeVideo) {
         void activeVideo.play();
         setIsPlaying(true);

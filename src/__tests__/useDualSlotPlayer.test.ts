@@ -54,9 +54,17 @@ const testScenes: Record<string, Scene> = {
 
 function createMockVideo(paused = false): HTMLVideoElement {
   const video = document.createElement("video");
+  let currentTime = 0;
   Object.defineProperty(video, "paused", {
     configurable: true,
     get: () => paused,
+  });
+  Object.defineProperty(video, "currentTime", {
+    configurable: true,
+    get: () => currentTime,
+    set: (value: number) => {
+      currentTime = value;
+    },
   });
   return video;
 }
@@ -208,5 +216,54 @@ describe("useDualSlotPlayer", () => {
     expect(videoA.pause).not.toHaveBeenCalled();
     expect(result.current.isPlaying).toBe(false);
     expect(result.current.showChoices).toBe(true);
+  });
+
+  it("updates currentTime and exposes duration", () => {
+    const { result } = renderHook(() =>
+      useDualSlotPlayer({
+        initialSceneId: "scene_01",
+        scenes: testScenes,
+      }),
+    );
+
+    expect(result.current.currentTime).toBe(0);
+    expect(result.current.duration).toBe(10);
+
+    const videoA = createMockVideo(false);
+    result.current.videoRefA.current = videoA;
+
+    act(() => {
+      result.current.seek(3);
+    });
+
+    expect(result.current.currentTime).toBe(3);
+    expect(videoA.currentTime).toBe(3);
+  });
+
+  it("clamps seek time to avoid exceeding the decision window buffer", () => {
+    const { result } = renderHook(() =>
+      useDualSlotPlayer({
+        initialSceneId: "scene_01",
+        scenes: testScenes,
+      }),
+    );
+
+    const videoA = createMockVideo(false);
+    result.current.videoRefA.current = videoA;
+
+    // duration=10, MAX_SEEK_BUFFER=5 => maxSeek=5
+    act(() => {
+      result.current.seek(9);
+    });
+
+    expect(result.current.currentTime).toBe(5);
+    expect(videoA.currentTime).toBe(5);
+
+    act(() => {
+      result.current.seek(-2);
+    });
+
+    expect(result.current.currentTime).toBe(0);
+    expect(videoA.currentTime).toBe(0);
   });
 });

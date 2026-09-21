@@ -1,9 +1,13 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import { STORY_MAP } from "@/src/data/mockStory";
 import { useDualSlotPlayer } from "@/src/hooks/useDualSlotPlayer";
 import type { Story } from "@/src/types/story";
 import { ChoiceOverlay } from "./ChoiceOverlay";
+import { TimelineScrubber } from "./TimelineScrubber";
+
+const CONTROLS_HIDE_MS = 3000;
 
 export interface PlayerProps {
   story: Story;
@@ -16,6 +20,51 @@ export function Player({ story, onBack }: PlayerProps) {
     scenes: STORY_MAP[story.slug]?.scenes,
   });
 
+  const [showControls, setShowControls] = useState(true);
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  const clearControlsTimeout = useCallback(() => {
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = null;
+    }
+  }, []);
+
+  const resetControlsTimer = useCallback(() => {
+    clearControlsTimeout();
+    if (!player.isPlaying || player.isScrubbing) {
+      return;
+    }
+    controlsTimeoutRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, CONTROLS_HIDE_MS);
+  }, [clearControlsTimeout, player.isPlaying, player.isScrubbing]);
+
+  useEffect(() => {
+    if (!player.isPlaying || player.isScrubbing || player.showChoices) {
+      clearControlsTimeout();
+      if (!player.isPlaying || player.isScrubbing) {
+        setShowControls(true);
+      }
+      return clearControlsTimeout;
+    }
+
+    if (showControls) {
+      resetControlsTimer();
+    }
+
+    return clearControlsTimeout;
+  }, [
+    clearControlsTimeout,
+    player.isPlaying,
+    player.isScrubbing,
+    player.showChoices,
+    resetControlsTimer,
+    showControls,
+  ]);
+
   const slotAClassName =
     player.activeSlot === "A"
       ? "absolute inset-0 w-full h-full object-cover z-10 opacity-100"
@@ -26,11 +75,23 @@ export function Player({ story, onBack }: PlayerProps) {
       ? "absolute inset-0 w-full h-full object-cover z-10 opacity-100"
       : "absolute inset-0 w-full h-full object-cover z-0 opacity-0 pointer-events-none";
 
+  const hudVisible = showControls && !player.showChoices;
+  const hudClassName = `transition-opacity duration-300 ${
+    hudVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+  }`;
+
   return (
     <div
       className="w-full h-full relative bg-black overflow-hidden select-none touch-none overscroll-none overscroll-y-none"
       style={{ overscrollBehaviorY: "none", touchAction: "none" }}
-      onClick={player.togglePlayPause}
+      onClick={() => {
+        if (player.showChoices) return;
+        setShowControls((prev) => {
+          const next = !prev;
+          if (next) resetControlsTimer();
+          return next;
+        });
+      }}
     >
       <video
         ref={player.videoRefA}
@@ -70,22 +131,44 @@ export function Player({ story, onBack }: PlayerProps) {
         />
       )}
 
-      {!player.isPlaying && !player.showChoices && (
+      {showControls && !player.showChoices && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <div className="w-16 h-16 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 flex items-center justify-center text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)]">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="h-8 w-8 translate-x-0.5"
-              aria-hidden="true"
-            >
-              <path d="M8 5v14l11-7L8 5z" />
-            </svg>
-          </div>
+          <button
+            type="button"
+            aria-label={player.isPlaying ? "Pause" : "Play"}
+            onClick={(e) => {
+              e.stopPropagation();
+              player.togglePlayPause();
+              resetControlsTimer();
+            }}
+            className="w-16 h-16 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 flex items-center justify-center text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)] pointer-events-auto transition-transform active:scale-95"
+          >
+            {player.isPlaying ? (
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-7 w-7"
+                aria-hidden="true"
+              >
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-8 w-8 translate-x-0.5"
+                aria-hidden="true"
+              >
+                <path d="M8 5v14l11-7L8 5z" />
+              </svg>
+            )}
+          </button>
         </div>
       )}
 
-      <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between p-3">
+      <header
+        className={`absolute inset-x-0 top-0 z-30 flex items-center justify-between p-3 ${hudClassName}`}
+      >
         <button
           type="button"
           aria-label="Back"
@@ -128,6 +211,17 @@ export function Player({ story, onBack }: PlayerProps) {
           )}
         </button>
       </header>
+
+      {!player.showChoices && (
+        <div className={hudClassName}>
+          <TimelineScrubber
+            currentTime={player.currentTime}
+            duration={player.duration}
+            onSeek={player.seek}
+            onScrubbingChange={player.setIsScrubbing}
+          />
+        </div>
+      )}
 
       {player.showChoices && (
         <ChoiceOverlay
