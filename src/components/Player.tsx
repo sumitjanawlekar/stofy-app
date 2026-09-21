@@ -65,6 +65,28 @@ export function Player({ story, onBack }: PlayerProps) {
     showControls,
   ]);
 
+  useEffect(() => {
+    player.currentScene.choices.forEach((choice) => {
+      if (choice.button_image_url) {
+        const img = new Image();
+        img.src = choice.button_image_url;
+      }
+    });
+  }, [player.currentScene.choices]);
+
+  const handleControlMouseEnter = useCallback(() => {
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handleControlMouseLeave = useCallback(() => {
+    if (player.isPlaying && !player.isScrubbing) {
+      resetControlsTimer();
+    }
+  }, [player.isPlaying, player.isScrubbing, resetControlsTimer]);
+
   const slotAClassName =
     player.activeSlot === "A"
       ? "absolute inset-0 w-full h-full object-cover z-10 opacity-100"
@@ -75,10 +97,7 @@ export function Player({ story, onBack }: PlayerProps) {
       ? "absolute inset-0 w-full h-full object-cover z-10 opacity-100"
       : "absolute inset-0 w-full h-full object-cover z-0 opacity-0 pointer-events-none";
 
-  const hudVisible = showControls && !player.showChoices;
-  const hudClassName = `transition-opacity duration-300 ${
-    hudVisible ? "opacity-100" : "opacity-0 pointer-events-none"
-  }`;
+  const showHeader = showControls || player.showChoices;
 
   return (
     <div
@@ -141,7 +160,9 @@ export function Player({ story, onBack }: PlayerProps) {
               player.togglePlayPause();
               resetControlsTimer();
             }}
-            className="w-16 h-16 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 flex items-center justify-center text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)] pointer-events-auto transition-transform active:scale-95"
+            onMouseEnter={handleControlMouseEnter}
+            onMouseLeave={handleControlMouseLeave}
+            className="w-16 h-16 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 flex items-center justify-center text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)] pointer-events-auto cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-150 hover:border-violet-400/60"
           >
             {player.isPlaying ? (
               <svg
@@ -167,7 +188,11 @@ export function Player({ story, onBack }: PlayerProps) {
       )}
 
       <header
-        className={`absolute inset-x-0 top-0 z-30 flex items-center justify-between p-3 ${hudClassName}`}
+        className={`absolute top-0 inset-x-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/70 to-transparent transition-opacity duration-300 ${
+          showHeader ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onMouseEnter={handleControlMouseEnter}
+        onMouseLeave={handleControlMouseLeave}
       >
         <button
           type="button"
@@ -176,7 +201,7 @@ export function Player({ story, onBack }: PlayerProps) {
             e.stopPropagation();
             onBack();
           }}
-          className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-xl text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)]"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-xl text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)] cursor-pointer hover:scale-105 hover:bg-black/80 active:scale-95 transition-all duration-150"
         >
           ←
         </button>
@@ -188,7 +213,7 @@ export function Player({ story, onBack }: PlayerProps) {
             e.stopPropagation();
             player.toggleMute();
           }}
-          className="min-h-11 min-w-11 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-white flex items-center justify-center shadow-[0_4px_24px_rgba(139,92,246,0.2)]"
+          className="min-h-11 min-w-11 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-white flex items-center justify-center shadow-[0_4px_24px_rgba(139,92,246,0.2)] cursor-pointer hover:scale-105 hover:bg-black/80 active:scale-95 transition-all duration-150"
         >
           {player.isMuted ? (
             <svg
@@ -213,7 +238,13 @@ export function Player({ story, onBack }: PlayerProps) {
       </header>
 
       {!player.showChoices && (
-        <div className={hudClassName}>
+        <div
+          className={`transition-opacity duration-300 ${
+            showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+          onMouseEnter={handleControlMouseEnter}
+          onMouseLeave={handleControlMouseLeave}
+        >
           <TimelineScrubber
             currentTime={player.currentTime}
             duration={player.duration}
@@ -227,6 +258,7 @@ export function Player({ story, onBack }: PlayerProps) {
         <ChoiceOverlay
           choices={player.currentScene.choices}
           onSelectChoice={player.selectChoice}
+          onBackToCatalog={onBack}
         />
       )}
     </div>
