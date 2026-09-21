@@ -1,5 +1,6 @@
 "use client";
 
+import { STORY_MAP } from "@/src/data/mockStory";
 import { useDualSlotPlayer } from "@/src/hooks/useDualSlotPlayer";
 import type { Story } from "@/src/types/story";
 import { ChoiceOverlay } from "./ChoiceOverlay";
@@ -10,7 +11,10 @@ export interface PlayerProps {
 }
 
 export function Player({ story, onBack }: PlayerProps) {
-  const player = useDualSlotPlayer({ initialSceneId: story.start_scene_id });
+  const player = useDualSlotPlayer({
+    initialSceneId: story.start_scene_id,
+    scenes: STORY_MAP[story.slug]?.scenes,
+  });
 
   const slotAClassName =
     player.activeSlot === "A"

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Catalog } from "@/src/components/Catalog";
 import { Player } from "@/src/components/Player";
-import { MOCK_STORY } from "@/src/data/mockStory";
+import { STORY_MAP } from "@/src/data/mockStory";
 import type { Story } from "@/src/types/story";
 
 export default function Home() {
@@ -16,10 +16,10 @@ export default function Home() {
   if (!selectedStory) {
     return (
       <Catalog
-        story={MOCK_STORY}
-        onSelectStory={(id) => {
-          if (id === MOCK_STORY.id) {
-            setSelectedStory(MOCK_STORY);
+        onSelectStory={(slug) => {
+          const bundle = STORY_MAP[slug];
+          if (bundle) {
+            setSelectedStory(bundle.story);
           }
         }}
       />
