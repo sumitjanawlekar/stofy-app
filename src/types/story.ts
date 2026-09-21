@@ -8,9 +8,11 @@ export type StoryStatus = (typeof STORY_STATUS)[keyof typeof STORY_STATUS];
 
 export interface Story {
   id: string;
+  slug: string;
   title: string;
   description: string;
   cover_image_url: string;
+  status: StoryStatus;
   start_scene_id: string;
   estimated_duration: string;
 }
