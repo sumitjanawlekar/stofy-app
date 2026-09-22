@@ -5,19 +5,22 @@ import { STORY_MAP } from "@/src/data/mockStory";
 import { useDualSlotPlayer } from "@/src/hooks/useDualSlotPlayer";
 import type { Story } from "@/src/types/story";
 import { ChoiceOverlay } from "./ChoiceOverlay";
+import { BrandLogo } from "./BrandLogo";
 import { TimelineScrubber } from "./TimelineScrubber";
 
 const CONTROLS_HIDE_MS = 3000;
 
 export interface PlayerProps {
-  story: Story;
+  storyId: string;
   onBack: () => void;
+  story?: Story;
 }
 
-export function Player({ story, onBack }: PlayerProps) {
+export function Player({ storyId, onBack, story }: PlayerProps) {
+  const currentStory = story ?? STORY_MAP[storyId]?.story;
   const player = useDualSlotPlayer({
-    initialSceneId: story.start_scene_id,
-    scenes: STORY_MAP[story.slug]?.scenes,
+    initialSceneId: currentStory?.start_scene_id ?? "",
+    scenes: STORY_MAP[storyId]?.scenes,
   });
 
   const [showControls, setShowControls] = useState(true);
@@ -101,8 +104,8 @@ export function Player({ story, onBack }: PlayerProps) {
 
   return (
     <div
-      className="w-full h-full relative bg-black overflow-hidden select-none touch-none overscroll-none overscroll-y-none"
-      style={{ overscrollBehaviorY: "none", touchAction: "none" }}
+      className="relative w-full h-full max-w-md mx-auto bg-black overflow-hidden select-none"
+      style={{ overscrollBehavior: "none", touchAction: "manipulation" }}
       onClick={() => {
         if (player.showChoices) return;
         setShowControls((prev) => {
@@ -162,13 +165,13 @@ export function Player({ story, onBack }: PlayerProps) {
             }}
             onMouseEnter={handleControlMouseEnter}
             onMouseLeave={handleControlMouseLeave}
-            className="w-16 h-16 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 flex items-center justify-center text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)] pointer-events-auto cursor-pointer hover:scale-110 active:scale-95 transition-transform duration-150 hover:border-violet-400/60"
+            className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white shadow-[0_8px_32px_rgba(0,0,0,0.6)] cursor-pointer pointer-events-auto hover:scale-110 hover:border-white/40 active:scale-95 transition-all duration-150"
           >
             {player.isPlaying ? (
               <svg
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                className="h-7 w-7"
+                className="h-7 w-7 text-white"
                 aria-hidden="true"
               >
                 <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
@@ -177,10 +180,10 @@ export function Player({ story, onBack }: PlayerProps) {
               <svg
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                className="h-8 w-8 translate-x-0.5"
+                className="h-7 w-7 text-white"
                 aria-hidden="true"
               >
-                <path d="M8 5v14l11-7L8 5z" />
+                <path d="M7.5 5.5v13l11-6.5-11-6.5z" />
               </svg>
             )}
           </button>
@@ -188,50 +191,85 @@ export function Player({ story, onBack }: PlayerProps) {
       )}
 
       <header
-        className={`absolute top-0 inset-x-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/70 to-transparent transition-opacity duration-300 ${
+        className={`absolute top-0 inset-x-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${
           showHeader ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onMouseEnter={handleControlMouseEnter}
         onMouseLeave={handleControlMouseLeave}
       >
-        <button
-          type="button"
-          aria-label="Back"
-          onClick={(e) => {
-            e.stopPropagation();
-            onBack();
-          }}
-          className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-xl text-white shadow-[0_4px_24px_rgba(139,92,246,0.2)] cursor-pointer hover:scale-105 hover:bg-black/80 active:scale-95 transition-all duration-150"
-        >
-          ←
-        </button>
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onBack();
+            }}
+            aria-label="Back to Catalog"
+            className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/15 cursor-pointer hover:scale-105 hover:bg-white/20 active:scale-95 transition-all duration-150 shrink-0"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              className="h-4 w-4"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5L8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
+
+          <BrandLogo size="sm" />
+
+          <span className="text-white/30 text-xs select-none">/</span>
+
+          <span className="text-xs sm:text-sm font-medium text-white/90 truncate max-w-[140px] sm:max-w-[200px] tracking-wide">
+            {currentStory?.title ?? "Stofy Original"}
+          </span>
+        </div>
 
         <button
           type="button"
-          aria-label={player.isMuted ? "Unmute" : "Mute"}
           onClick={(e) => {
             e.stopPropagation();
             player.toggleMute();
           }}
-          className="min-h-11 min-w-11 rounded-full bg-[#130E26]/80 backdrop-blur-xl border border-violet-500/30 text-white flex items-center justify-center shadow-[0_4px_24px_rgba(139,92,246,0.2)] cursor-pointer hover:scale-105 hover:bg-black/80 active:scale-95 transition-all duration-150"
+          aria-label={player.isMuted ? "Unmute" : "Mute"}
+          className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/15 cursor-pointer hover:scale-105 hover:bg-white/20 active:scale-95 transition-all duration-150 shrink-0"
         >
           {player.isMuted ? (
             <svg
               viewBox="0 0 24 24"
-              fill="currentColor"
-              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="h-4 w-4 text-white"
               aria-hidden="true"
             >
-              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.5-4.5v15l-4.5-4.5H4.5v-6h4.5z"
+              />
             </svg>
           ) : (
             <svg
               viewBox="0 0 24 24"
-              fill="currentColor"
-              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="h-4 w-4 text-white"
               aria-hidden="true"
             >
-              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.5-4.5v15l-4.5-4.5H4.5v-6h2.25z"
+              />
             </svg>
           )}
         </button>

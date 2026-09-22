@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { STORIES, STORY_MAP } from "@/src/data/mockStory";
 import type { Story } from "@/src/types/story";
+import { BrandLogo } from "./BrandLogo";
 
 export interface CatalogProps {
   story?: Story;
@@ -24,21 +25,7 @@ export function Catalog({ onSelectStory }: CatalogProps) {
       <div className="absolute top-1/3 left-[-60px] w-72 h-72 bg-fuchsia-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <header className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06] bg-[#0A0A0F]/80 backdrop-blur-xl sticky top-0 z-20">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-violet-600 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-500/25">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="h-3.5 w-3.5 text-white translate-x-px"
-              aria-hidden="true"
-            >
-              <path d="M8 5v14l11-7L8 5z" />
-            </svg>
-          </div>
-          <h1 className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
-            stofy.ai
-          </h1>
-        </div>
+        <BrandLogo size="md" />
         <span className="px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-[10px] font-semibold tracking-wider text-violet-300 uppercase">
           Trending
         </span>
