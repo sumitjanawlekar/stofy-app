@@ -28,7 +28,11 @@ export default function Home() {
 
   return (
     <main className="relative w-full h-[100dvh] flex flex-col bg-black overflow-hidden">
-      <Player story={selectedStory} onBack={handleBackToCatalog} />
+      <Player
+        storyId={selectedStory.slug}
+        story={selectedStory}
+        onBack={handleBackToCatalog}
+      />
     </main>
   );
 }
