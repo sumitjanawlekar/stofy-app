@@ -47,12 +47,15 @@ export function Catalog({ onSelectStory, stories }: CatalogProps) {
                   alt={featuredStory.title}
                   className="aspect-[4/5] w-full object-cover object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none"
+                  style={{ top: "40%" }}
+                />
                 <span className="absolute top-3.5 right-3.5 bg-black/75 backdrop-blur-md text-neutral-200 text-xs font-medium px-2.5 py-1 rounded-full border border-white/10">
                   {featuredStory.estimated_duration}
                 </span>
 
-                <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-16 bg-gradient-to-t from-black/95 via-black/50 to-transparent flex flex-col items-center text-center">
+                <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-16 flex flex-col items-center text-center">
                   {featuredStory.title_logo_url ? (
                     <img
                       src={featuredStory.title_logo_url}
@@ -65,41 +68,43 @@ export function Catalog({ onSelectStory, stories }: CatalogProps) {
                     </h2>
                   )}
 
-                  <div className="mt-2.5 mb-3.5 w-full text-center px-2">
-                    {isExpanded ? (
-                      <p className="text-[11.5px] sm:text-xs text-neutral-300/85 leading-snug font-normal text-center">
-                        {featuredStory.description}{" "}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsExpanded(false);
-                          }}
-                          className="inline font-medium text-violet-300/90 hover:text-violet-200 transition-colors cursor-pointer select-none"
-                        >
-                          less
-                        </button>
-                      </p>
-                    ) : (
-                      <p className="text-[11.5px] sm:text-xs text-neutral-300/85 leading-snug font-normal text-center">
-                        <span>
-                          {featuredStory.description
-                            .split(" ")
-                            .slice(0, 7)
-                            .join(" ")}
-                        </span>{" "}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsExpanded(true);
-                          }}
-                          className="inline font-medium text-violet-300/90 hover:text-violet-200 transition-colors cursor-pointer select-none whitespace-nowrap"
-                        >
-                          ...more
-                        </button>
-                      </p>
-                    )}
+                  <div className="mt-2.5 mb-3.5 w-full max-w-[320px] mx-auto text-center px-2">
+                    <p className="text-[11.5px] sm:text-xs text-neutral-200/85 leading-snug font-normal">
+                      {isExpanded ? (
+                        <>
+                          {featuredStory.description}{" "}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsExpanded(false);
+                            }}
+                            className="inline font-medium text-violet-300 hover:text-violet-200 transition-colors cursor-pointer select-none"
+                          >
+                            less
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span>
+                            {featuredStory.description
+                              .split(" ")
+                              .slice(0, 6)
+                              .join(" ")}
+                          </span>{" "}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsExpanded(true);
+                            }}
+                            className="inline font-medium text-violet-300 hover:text-violet-200 transition-colors cursor-pointer select-none whitespace-nowrap"
+                          >
+                            ...more
+                          </button>
+                        </>
+                      )}
+                    </p>
                   </div>
 
                   <button
@@ -139,11 +144,14 @@ export function Catalog({ onSelectStory, stories }: CatalogProps) {
                   alt={story.title}
                   className="h-full w-full object-cover object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none"
+                  style={{ top: "40%" }}
+                />
                 <span className="absolute top-3 right-3 bg-black/75 backdrop-blur-md text-neutral-200 text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10">
                   {story.estimated_duration}
                 </span>
-                <div className="absolute inset-x-0 bottom-0 px-4 pb-3.5 pt-12 bg-gradient-to-t from-black/90 via-black/45 to-transparent flex items-end justify-between gap-3">
+                <div className="absolute inset-x-0 bottom-0 px-4 pb-3.5 pt-12 flex items-end justify-between gap-3">
                   <div className="flex-1 min-w-0 h-13 sm:h-14 flex items-end justify-start">
                     {story.title_logo_url ? (
                       <img
