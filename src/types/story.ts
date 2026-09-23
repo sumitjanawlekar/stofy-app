@@ -12,6 +12,7 @@ export interface Story {
   title: string;
   description: string;
   cover_image_url: string;
+  title_logo_url?: string;
   status: StoryStatus;
   start_scene_id: string;
   estimated_duration: string;

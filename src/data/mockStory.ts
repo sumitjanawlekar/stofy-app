@@ -26,6 +26,7 @@ interface FixtureStory {
   title: string;
   description: string;
   cover_image_url: string;
+  title_logo_url?: string;
   status: string;
   start_scene_key: string;
   scenes: FixtureScene[];
@@ -87,6 +88,7 @@ export function parseFixtureToBundle(fixture: FixtureStory): StoryBundle {
     title: fixture.title,
     description: fixture.description,
     cover_image_url: fixture.cover_image_url,
+    title_logo_url: fixture.title_logo_url,
     status: toStoryStatus(fixture.status),
     start_scene_id: sceneId(fixture.slug, fixture.start_scene_key),
     estimated_duration: formatMinutes(totalSeconds),

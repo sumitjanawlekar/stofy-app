@@ -2,7 +2,8 @@
   "slug": "lady-boss",
   "title": "Lady Boss",
   "description": "High stakes corporate intrigue in the modern boardroom.",
-  "cover_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789810771/lady-boss-cover.png",
+  "cover_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1790121986/lady-boss-686-386.png",
+  "title_logo_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1790121987/lady-boss-title.png",
   "status": "in_progress",
   "start_scene_key": "00",
   "scenes": [

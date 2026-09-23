@@ -7,15 +7,17 @@ import { BrandLogo } from "./BrandLogo";
 
 export interface CatalogProps {
   story?: Story;
+  stories?: Story[];
   onSelectStory?: (slug: string) => void;
 }
 
-export function Catalog({ onSelectStory }: CatalogProps) {
-  const featuredStory = STORIES[0];
+export function Catalog({ onSelectStory, stories }: CatalogProps) {
+  const catalogStories = stories ?? STORIES;
+  const featuredStory = catalogStories[0];
   const [isExpanded, setIsExpanded] = useState(false);
 
   function selectStory(slug: string) {
-    if (!STORY_MAP[slug]) return;
+    if (!stories && !STORY_MAP[slug]) return;
     onSelectStory?.(slug);
   }
 
@@ -50,41 +52,70 @@ export function Catalog({ onSelectStory }: CatalogProps) {
                   {featuredStory.estimated_duration}
                 </span>
 
-                <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-16">
-                  <h2 className="text-[1.35rem] font-bold text-white tracking-tight leading-snug">
-                    {featuredStory.title}
-                  </h2>
-                  <div className="mt-1.5">
-                    <p
-                      className={`text-xs text-neutral-300 leading-relaxed ${isExpanded ? "" : "line-clamp-2"}`}
-                    >
-                      {featuredStory.description}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsExpanded(!isExpanded);
-                      }}
-                      className="text-[11px] font-semibold text-violet-400 hover:text-violet-300 ml-1 inline-block"
-                    >
-                      {isExpanded ? "Show less" : "...Read more"}
-                    </button>
+                <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-16 bg-gradient-to-t from-black/95 via-black/50 to-transparent flex flex-col items-center text-center">
+                  {featuredStory.title_logo_url ? (
+                    <img
+                      src={featuredStory.title_logo_url}
+                      alt={featuredStory.title}
+                      className="h-14 sm:h-16 w-auto max-w-[240px] sm:max-w-[280px] object-contain object-center select-none drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
+                    />
+                  ) : (
+                    <h2 className="text-xl sm:text-2xl font-black text-white drop-shadow">
+                      {featuredStory.title}
+                    </h2>
+                  )}
+
+                  <div className="mt-2.5 mb-3.5 w-full text-center px-2">
+                    {isExpanded ? (
+                      <p className="text-[11.5px] sm:text-xs text-neutral-300/85 leading-snug font-normal text-center">
+                        {featuredStory.description}{" "}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsExpanded(false);
+                          }}
+                          className="inline font-medium text-violet-300/90 hover:text-violet-200 transition-colors cursor-pointer select-none"
+                        >
+                          less
+                        </button>
+                      </p>
+                    ) : (
+                      <p className="text-[11.5px] sm:text-xs text-neutral-300/85 leading-snug font-normal text-center">
+                        <span>
+                          {featuredStory.description
+                            .split(" ")
+                            .slice(0, 7)
+                            .join(" ")}
+                        </span>{" "}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsExpanded(true);
+                          }}
+                          className="inline font-medium text-violet-300/90 hover:text-violet-200 transition-colors cursor-pointer select-none whitespace-nowrap"
+                        >
+                          ...more
+                        </button>
+                      </p>
+                    )}
                   </div>
+
                   <button
                     type="button"
                     onClick={() => selectStory(featuredStory.slug)}
-                    className="w-full min-h-12 mt-4 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-violet-600/25 transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm tracking-wide shadow-lg shadow-violet-950/50 transition-all active:scale-[0.98] cursor-pointer"
                   >
                     <svg
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="h-4 w-4"
+                      className="w-4 h-4 translate-x-[0.5px]"
                       aria-hidden="true"
                     >
-                      <path d="M8 5v14l11-7L8 5z" />
+                      <path d="M8 5v14l11-7z" />
                     </svg>
-                    Watch Story
+                    <span>Watch Story</span>
                   </button>
                 </div>
               </div>
@@ -97,19 +128,10 @@ export function Catalog({ onSelectStory }: CatalogProps) {
             More Stories
           </p>
 
-          {STORIES.slice(1).map((story) => (
+          {catalogStories.slice(1).map((story) => (
             <div
               key={story.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => selectStory(story.slug)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  selectStory(story.slug);
-                }
-              }}
-              className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/70 backdrop-blur-md cursor-pointer transition-all hover:border-violet-500/30"
+              className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/70 backdrop-blur-md transition-all hover:border-violet-500/30"
             >
               <div className="relative aspect-[16/10] w-full overflow-hidden">
                 <img
@@ -121,22 +143,39 @@ export function Catalog({ onSelectStory }: CatalogProps) {
                 <span className="absolute top-3 right-3 bg-black/75 backdrop-blur-md text-neutral-200 text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10">
                   {story.estimated_duration}
                 </span>
-                <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-8">
-                  <h3 className="text-base font-bold text-white tracking-tight">
-                    {story.title}
-                  </h3>
-                  <p className="text-xs text-neutral-300 leading-relaxed line-clamp-2 mt-0.5">
-                    {story.description}
-                  </p>
+                <div className="absolute inset-x-0 bottom-0 px-4 pb-3.5 pt-12 bg-gradient-to-t from-black/90 via-black/45 to-transparent flex items-end justify-between gap-3">
+                  <div className="flex-1 min-w-0 h-13 sm:h-14 flex items-end justify-start">
+                    {story.title_logo_url ? (
+                      <img
+                        src={story.title_logo_url}
+                        alt={story.title}
+                        className="max-h-13 sm:max-h-14 max-w-[150px] w-auto h-auto object-contain object-left select-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+                      />
+                    ) : (
+                      <h3 className="text-sm font-bold text-white tracking-tight drop-shadow truncate">
+                        {story.title}
+                      </h3>
+                    )}
+                  </div>
+
                   <button
                     type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
+                    onClick={(e) => {
+                      e.stopPropagation();
                       selectStory(story.slug);
                     }}
-                    className="mt-3 min-h-10 px-4 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white font-semibold text-xs rounded-xl"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs tracking-wide shadow-md shadow-violet-950/40 transition-all active:scale-95 shrink-0 cursor-pointer mb-0.5"
+                    aria-label={`Watch ${story.title}`}
                   >
-                    Watch Story
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-3 h-3 translate-x-[0.5px]"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                    <span>Watch Story</span>
                   </button>
                 </div>
               </div>

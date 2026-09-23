@@ -40,4 +40,12 @@ describe("story manifest graph integrity", () => {
       }
     }
   });
+
+  it("parses valid title_logo_url for catalog stories when configured", () => {
+    for (const story of STORIES) {
+      if (story.title_logo_url) {
+        expect(story.title_logo_url).toMatch(/^https:\/\/res\.cloudinary\.com\//);
+      }
+    }
+  });
 });

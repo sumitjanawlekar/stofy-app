@@ -2,7 +2,8 @@
   "slug": "dragon-queen",
   "title": "The Dragon Queen",
   "description": "An interactive fantasy adventure where every choice determines your fate.",
-  "cover_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1789811106/dragon-queen_cover.jpg",
+  "cover_image_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1790121485/dragon-queen-800-600.png",
+  "title_logo_url": "https://res.cloudinary.com/uvpinyqi/image/upload/v1790121484/dragon-queen-title.png",
   "status": "in_progress",
   "start_scene_key": "00",
   "scenes": [
